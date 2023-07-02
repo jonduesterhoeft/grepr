@@ -52,8 +52,9 @@ fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
 fn write<'a>(result: & Vec<&'a str>, mut writer: impl std::io::Write) -> Result<(), Box<dyn Error>> {
     for line in result {
         writeln!(writer, "{}", line)?;
-        Ok(())
     }
+    
+    Ok(())
 }
 
 

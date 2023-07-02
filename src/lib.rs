@@ -4,7 +4,7 @@ use clap::Parser;
 
 
 /// A structure that stores the configuration parameters.
-#[derivce(Parser)]
+#[derive(Parser)]
 pub struct Config {
     query: String,
     path: std::path::PathBuf

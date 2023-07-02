@@ -12,11 +12,15 @@ fn main() {
         .unwrap_or_else(|err| {
             println!("Problem parsing arguments: {err}");
             process::exit(1);
-        }
-    })
+        });
     
     println!("In {path}");
 
+    run(config);
+    
+}
+
+fn run(config: Config) {
     let contents = fs::read_to_string(config.path)
         .expect("read {config.path}")
 

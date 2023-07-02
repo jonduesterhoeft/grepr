@@ -49,7 +49,7 @@ fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
 }
 
 /// Writes the search results to the command line.
-fn write(result: & Vec<&'a str>, mut writer: impl std::io::Write) {
+fn write<'a>(result: & Vec<&'a str>, mut writer: impl std::io::Write) {
     for line in result {
         writeln!(writer, "{}", line);
     }

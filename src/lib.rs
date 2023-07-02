@@ -13,8 +13,8 @@ pub struct Config {
 
 /// Executes the search and outputs results.
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
-    let contents = read(&config.path)?;
-    let results = search(&config.query, &contents)?;
+    let reader = read(&config.path)?;
+    let results = search(&config.query, &reader)?;
 
     write(&results, &mut std::io::stdout())?;
 
@@ -22,7 +22,7 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
 }
 
 
-fn read(path: &std::path::PathBuf) -> BufReader<R> {
+fn read<R>(path: &std::path::PathBuf) -> BufReader<R> {
     let file = File::open(path)?;
     let mut reader = BufReader::new(file);
 
@@ -30,12 +30,12 @@ fn read(path: &std::path::PathBuf) -> BufReader<R> {
 }
 
 /// Searchs the file path for the query string.
-fn search<'a>(query: &str, contents: &BufReader<R>) -> Result<Vec<&'a str>, Box<dyn Error>> {
+fn search<'a, R>(query: &str, reader: &mut BufReader<R>) -> Result<Vec<&'a str>, Box<dyn Error>> {
     let mut results = Vec::new();
 
-    for line in contents.lines() {
+    for line in reader.lines() {
         if line.contains(query) {
-            results.push(line.unwrap());
+            results.push(line?);
         }
     }
     

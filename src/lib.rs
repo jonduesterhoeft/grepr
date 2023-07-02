@@ -3,7 +3,7 @@ use std::error::Error;
 
 
 /// A structure that stores the configuration parameters.
-struct Config {
+pub struct Config {
     query: String,
     path: String
 }

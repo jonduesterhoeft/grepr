@@ -30,7 +30,7 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
 
     let results = search(&config.query, &contents);
 
-    write(&results, &mut std::io::stdout())?;
+    write(&results, &mut std::io::stdout());
 
     Ok(())
 }
@@ -51,7 +51,9 @@ fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
 /// Writes the search results to the command line.
 fn write<'a>(result: & Vec<&'a str>, mut writer: impl std::io::Write) {
     for line in result {
-        writeln!(writer, "{}", line);
+        writeln!(writer, "{}", line)?;
+
+        Ok(())
     }
 }
 

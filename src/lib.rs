@@ -64,13 +64,13 @@ mod tests {
     fn test_search_file() {
         let query = "sunbeam";
         let path = "test/pale_blue_dot.txt";
-        let config = Config { query, path };
+        let config = Config { query.to_string(), path.to_string() };
 
-        let contents = fs::read_to_string(config.path)?;
+        let contents = fs::read_to_string(config.path);
         let results = search(&config.query, &contents);
 
         let mut output = Vec::new();
-        write(results, &mut output);
+        write(&results, &mut output);
 
         assert_eq!(output, "on a mote of dust suspended in a sunbeam.");
     }

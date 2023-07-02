@@ -24,18 +24,19 @@ impl Config {
 }
 
 
+/// Executes the search and outputs results.
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let contents = fs::read_to_string(config.path)?;
 
-    for line in search(&config.query, &contents) {
-        println!("{line}");
-    }
+    let results = search(&config.query, &contents);
+
+    write(results, &mut std::io::stdout());
 
     Ok(())
 }
 
 /// Searchs the file path for the query string.
-pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
+fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
     let mut results = Vec::new();
 
     for line in contents.lines() {
@@ -47,10 +48,32 @@ pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
     results
 }
 
+/// Writes the search results to the command line.
+fn write(result: & Vec<&'a str>, mut writer: impl std::io::Write) {
+    for line in result {
+        writeln!(writer, "{}", line);
+    }
+}
+
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_search_file() {
+        let query = "sunbeam";
+        let path = "test/pale_blue_dot.txt";
+        let config: Config = { query, path };
+
+        let contents = fs::read_to_string(config.path)?;
+        let results = search(&config.query, &contents);
+
+        let mut output = Vec::new();
+        write(results, &mut output);
+
+        assert_eq!(output, "on a mote of dust suspended in a sunbeam.");
+    }
 
     #[test]
     fn test_search() {

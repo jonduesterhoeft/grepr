@@ -9,12 +9,12 @@ fn main() {
 
     let config = Config::build(&args)
         .unwrap_or_else(|err| {
-            println!("Problem parsing arguments: {err}");
+            eprintln!("problem parsing arguments: {err}");
             process::exit(1);
         });
 
     if let Err(error) = mgrep::run(config) {
-        println!("mini-grep error: {error}");
+        eprintln!("mgrep error: {error}");
         process::exit(1);
     }
 }

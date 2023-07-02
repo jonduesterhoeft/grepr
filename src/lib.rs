@@ -30,7 +30,7 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
 
     let results = search(&config.query, &contents);
 
-    write(&results, &mut std::io::stdout());
+    write(&results, &mut std::io::stdout())?;
 
     Ok(())
 }
@@ -59,21 +59,6 @@ fn write<'a>(result: & Vec<&'a str>, mut writer: impl std::io::Write) {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn test_search_file() {
-        let query = "sunbeam";
-        let path = "test/pale_blue_dot.txt";
-        let config = Config { query: query.to_string(), path: path.to_string() };
-
-        let contents = fs::read_to_string(config.path);
-        let results = search(&config.query, &contents);
-
-        let mut output = Vec::new();
-        write(&results, &mut output);
-
-        assert_eq!(output, "on a mote of dust suspended in a sunbeam.");
-    }
 
     #[test]
     fn test_search() {

@@ -62,9 +62,9 @@ mod tests {
 
     #[test]
     fn test_search_file() {
-        let query = "sunbeam";
-        let path = "test/pale_blue_dot.txt";
-        let config = Config { query.to_string(), path.to_string() };
+        let query: str = "sunbeam";
+        let path: str = "test/pale_blue_dot.txt";
+        let config = Config { query, path };
 
         let contents = fs::read_to_string(config.path);
         let results = search(&config.query, &contents);

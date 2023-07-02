@@ -24,7 +24,7 @@ pub fn run<R>(config: Config) -> Result<(), Box<dyn Error>> {
 
 fn read<R>(path: &std::path::PathBuf) -> Result<BufReader<R>, Box<dyn Error>> {
     let file = File::open(path)?;
-    let mut reader = BufReader::new(file);
+    let mut reader: BufReader<R> = BufReader::new(file);
 
     Ok(reader)
 }

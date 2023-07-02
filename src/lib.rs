@@ -30,7 +30,7 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
 
     let results = search(&config.query, &contents);
 
-    write(results, &mut std::io::stdout());
+    write(&results, &mut std::io::stdout());
 
     Ok(())
 }

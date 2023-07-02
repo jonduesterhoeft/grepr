@@ -27,7 +27,9 @@ impl Config {
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let contents = fs::read_to_string(config.path)?;
 
-    println!("With text:\n{contents}");
+    for line in search(&config.query, &contents) {
+        println!("{line}");
+    }
 
     Ok(())
 }
@@ -54,9 +56,9 @@ mod tests {
     fn test_search() {
         let query = "test";
         let contents = "\
-            This is:
-            A test function
-            ";
+This is:
+A test function
+";
 
         assert_eq!(vec!["A test function"], search(query, contents))
     }

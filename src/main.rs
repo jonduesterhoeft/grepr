@@ -1,7 +1,7 @@
 use std::env;
 use std::process;
 
-use mini-grep::Config;
+use mgrep::Config;
 
 
 fn main() {
@@ -15,7 +15,7 @@ fn main() {
     
     println!("In {path}");
 
-    if let Err(error) = mini-grep::run(config) {
+    if let Err(error) = mgrep::run(config) {
         println!("mini-grep error: {error}");
         process::exit(1);
     }

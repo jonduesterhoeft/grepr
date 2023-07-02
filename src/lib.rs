@@ -13,7 +13,7 @@ pub struct Config {
 
 /// Executes the search and outputs results.
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
-    let mut reader = read(&config.path)?;
+    let mut reader: BufReader<R> = read(&config.path)?;
     let results = search(&config.query, &mut reader)?;
 
     write(&results, &mut std::io::stdout())?;

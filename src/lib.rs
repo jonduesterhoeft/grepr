@@ -23,10 +23,41 @@ impl Config {
     }
 }
 
+
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let contents = fs::read_to_string(config.path)?;
 
     println!("With text:\n{contents}");
 
     Ok(())
+}
+
+/// Searchs the file path for the query string.
+pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
+    let mut results = Vec::new();
+
+    for line in contents.lines() {
+        if line.contains(query) {
+            results.push(line);
+        }
+    }
+    
+    results
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_search() {
+        let query = "test";
+        let contents = "\
+            This is:
+            A test function
+            ";
+
+        assert_eq!(vec!["A test function"], search(query, contents))
+    }
 }

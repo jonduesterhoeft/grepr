@@ -12,12 +12,9 @@ fn main() {
             println!("Problem parsing arguments: {err}");
             process::exit(1);
         });
-    
-    println!("In {path}");
 
     if let Err(error) = mgrep::run(config) {
         println!("mini-grep error: {error}");
         process::exit(1);
     }
-    
 }

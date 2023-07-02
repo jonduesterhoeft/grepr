@@ -21,7 +21,8 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn read(path: &std::path::PathBuf) -> BufReader {
+
+fn read(path: &std::path::PathBuf) -> BufReader<R> {
     let file = File::open(path)?;
     let mut reader = BufReader::new(file);
 
@@ -29,7 +30,7 @@ fn read(path: &std::path::PathBuf) -> BufReader {
 }
 
 /// Searchs the file path for the query string.
-fn search<'a>(query: &str, contents: &BufReader) -> Result<Vec<&'a str>, Box<dyn Error>> {
+fn search<'a>(query: &str, contents: &BufReader<R>) -> Result<Vec<&'a str>, Box<dyn Error>> {
     let mut results = Vec::new();
 
     for line in contents.lines() {

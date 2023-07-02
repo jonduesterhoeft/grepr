@@ -1,5 +1,4 @@
 use std::env;
-use std::fs;
 use std::process;
 
 use mini-grep::Config;
@@ -16,13 +15,9 @@ fn main() {
     
     println!("In {path}");
 
-    run(config);
+    if let Err(error) = mini-grep::run(config) {
+        println!("mini-grep error: {error}");
+        process::exit(1);
+    }
     
-}
-
-fn run(config: Config) {
-    let contents = fs::read_to_string(config.path)
-        .expect("read {config.path}")
-
-    println!("With text:\n{contents}");
 }

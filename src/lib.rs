@@ -1,10 +1,12 @@
+use std::fs;
+use std::error::Error;
+
 
 /// A structure that stores the configuration parameters.
 struct Config {
     query: String,
     path: String
 }
-
 
 impl Config {
     /// Parses the command line arguments into the query and file path.
@@ -19,4 +21,12 @@ impl Config {
 
         Ok(Config { query, path })
     }
+}
+
+pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
+    let contents = fs::read_to_string(config.path)?;
+
+    println!("With text:\n{contents}");
+
+    Ok(())
 }

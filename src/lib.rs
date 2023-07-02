@@ -1,4 +1,5 @@
-use std::fs;
+use std::fs::File;
+use std::io::BufReader;
 use std::error::Error;
 use clap::Parser;
 
@@ -10,44 +11,34 @@ pub struct Config {
     path: std::path::PathBuf
 }
 
-// impl Config {
-//     /// Parses the command line arguments into the query and file path.
-//     pub fn build(args: &[String]) -> Result<Config, &'static str> {
-//         // args[0] is taken up by the program's name
-//         if args.len() < 3 {
-//             return Err("not enough arguments");
-//         }
-        
-//         let query = args[1].clone();
-//         let path = args[2].clone();
-
-//         Ok(Config { query, path })
-//     }
-// }
-
-
 /// Executes the search and outputs results.
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
-    let contents = fs::read_to_string(config.path)?;
-
-    let results = search(&config.query, &contents);
+    let contents = read(&config.path)?;
+    let results = search(&config.query, &contents)?;
 
     write(&results, &mut std::io::stdout())?;
 
     Ok(())
 }
 
+fn read(path: &std::path::PathBuf) -> BufReader {
+    let file = File::open(path)?;
+    let mut reader = BufReader::new(file);
+
+    Ok(reader)
+}
+
 /// Searchs the file path for the query string.
-fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
+fn search<'a>(query: &str, contents: &BufReader) -> Result<Vec<&'a str>, Box<dyn Error>> {
     let mut results = Vec::new();
 
     for line in contents.lines() {
         if line.contains(query) {
-            results.push(line);
+            results.push(line.unwrap());
         }
     }
     
-    results
+    Ok(results)
 }
 
 /// Writes the search results to the command line.

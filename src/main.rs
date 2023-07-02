@@ -5,7 +5,7 @@ use mgrep::Config;
 
 
 fn main() {
-    let args: Config::parse();
+    let config: Config::parse();
 
     if let Err(error) = mgrep::run(config) {
         eprintln!("mgrep error: {error}");

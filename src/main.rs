@@ -1,8 +1,7 @@
-use std::env;
-use std::process;
 use clap::Parser;
 use mgrep::Args;
-
+use std::env;
+use std::process;
 
 fn main() {
     let args = Args::parse();
@@ -12,5 +11,3 @@ fn main() {
         process::exit(1);
     }
 }
-
-

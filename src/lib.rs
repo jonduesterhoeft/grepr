@@ -12,15 +12,15 @@ pub struct Args {
     pub path: String,
     #[arg(short, long)]
     ignore_case: bool,
+    #[arg(short = 'v', long)]
+    invert_match: bool,
 
 }
 
 /// Executes the search and outputs results.
 pub fn run(args: Args) -> Result<(), Box<dyn Error>> {
     let contents = fs::read_to_string(&args.path)?;
-
     let results = search(&args, &contents)?;
-
     write(&results, &mut std::io::stdout())?;
 
     Ok(())
@@ -39,6 +39,7 @@ fn search<'a>(args: &Args, contents: &'a str) -> Result<Vec<&'a str>, Box<dyn Er
     Ok(results)
 }
 
+// Case sensitive search
 fn search_case_sensitive<'a>(query: &str, contents: &'a str, results: &mut Vec<&'a str>) {
     for line in contents.lines() {
         if line.contains(query) {
@@ -47,6 +48,7 @@ fn search_case_sensitive<'a>(query: &str, contents: &'a str, results: &mut Vec<&
     }
 }
 
+// Case INsensitive search
 fn search_case_insensitive<'a>(query: &str, contents: &'a str, results: &mut Vec<&'a str>) {
     let query = query.to_lowercase();
     for line in contents.lines() {
@@ -71,19 +73,20 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_search() {
+    fn test_search_case_sensitive() {
         let query = "test";
-        let contents = "\
-This is:
-A test function
-";
-        let results = search(query, contents);
+        let mut results = Vec::new();
+        let contents = "This is:\nA test function";
+        search_case_sensitive(&query, &contents, &mut results);
+        assert_eq!(vec!["A test function"], results)
+    }
 
-        let results = match results {
-            Ok(r) => r,
-            Err(e) => panic!("{:?}", e),
-        };
-
+    #[test]
+    fn test_search_case_insensitive() {
+        let query = "TEST";
+        let mut results = Vec::new();
+        let contents = "This is:\nA test function";
+        search_case_insensitive(&query, &contents, &mut results);
         assert_eq!(vec!["A test function"], results)
     }
 }

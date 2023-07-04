@@ -1,6 +1,6 @@
 use std::env;
 use std::process;
-use clap::{Arg, App, Parser};
+use clap::Parser;
 use mgrep::Args;
 
 

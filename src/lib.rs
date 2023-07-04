@@ -6,16 +6,20 @@ use clap::Parser;
 
 /// A struct that stores the configuration parameters.
 #[derive(Parser)]
+#[command(author, version, about, long_about = None)]
 pub struct Args {
     pub query: String,
-    pub path: String
+    pub path: String,
+    #[arg(short, long)]
+    ignore_case: bool,
+
 }
 
 /// Executes the search and outputs results.
 pub fn run(args: Args) -> Result<(), Box<dyn Error>> {
-    let contents = fs::read_to_string(args.path)?;
+    let contents = fs::read_to_string(&args.path)?;
 
-    let results = search(&args.query, &contents)?;
+    let results = search(&args, &contents)?;
 
     write(&results, &mut std::io::stdout())?;
 
@@ -23,16 +27,33 @@ pub fn run(args: Args) -> Result<(), Box<dyn Error>> {
 }
 
 /// Searchs the file path for the query string.
-fn search<'a>(query: &str, contents: &'a str) -> Result<Vec<&'a str>, Box<dyn Error>> {
+fn search<'a>(args: &Args, contents: &'a str) -> Result<Vec<&'a str>, Box<dyn Error>> {
     let mut results = Vec::new();
 
+    if !args.ignore_case {
+        search_case_sensitive(&args.query, &contents, &mut results);
+    } else {
+        search_case_insensitive(&args.query, &contents, &mut results);
+    }
+    
+    Ok(results)
+}
+
+fn search_case_sensitive<'a>(query: &str, contents: &'a str, results: &mut Vec<&'a str>) {
     for line in contents.lines() {
         if line.contains(query) {
             results.push(line);
         }
     }
-    
-    Ok(results)
+}
+
+fn search_case_insensitive<'a>(query: &str, contents: &'a str, results: &mut Vec<&'a str>) {
+    let query = query.to_lowercase();
+    for line in contents.lines() {
+        if line.to_lowercase().contains(&query) {
+            results.push(line);
+        }
+    }
 }
 
 /// Writes the search results to the command line.

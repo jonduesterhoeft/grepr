@@ -1,6 +1,8 @@
 [package]
 name = "mgrep"
+author = "Jon Duesterhoeft. <jon.duesterhoeft@gmail.com>"
 version = "0.1.0"
+about = "A minimal implementation of grep in Rust."
 edition = "2021"
 
 [dependencies]

@@ -1,19 +1,13 @@
 use std::env;
 use std::process;
-
-use mgrep::Config;
+use clap::{Arg, App, Parser};
+use mgrep::Args;
 
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-    
-    let config = Config::build(&args)
-        .unwrap_or_else(|err| {
-            eprintln!("problem parsing arguments: {err}");
-            process::exit(1);
-        });
+    let args = Args::parse();
 
-    if let Err(e) = mgrep::run(config) {
+    if let Err(e) = mgrep::run(args) {
         println!("Application error: {e}");
         process::exit(1);
     }

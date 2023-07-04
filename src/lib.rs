@@ -1,31 +1,21 @@
 use std::fs;
 use std::error::Error;
 
+use clap::Parser;
+
 
 /// A struct that stores the configuration parameters.
-pub struct Config {
+#[derive(Parser)]
+pub struct Args {
     pub query: String,
     pub path: String
 }
 
-impl Config {
-    pub fn build(args: &[String]) -> Result<Config, &'static str> {
-        if args.len() < 3 {
-            return Err("not enough arguments");
-        }
-
-        let query = args[1].clone();
-        let path = args[2].clone();
-
-        Ok(Config { query, path })
-    }
-}
-
 /// Executes the search and outputs results.
-pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
-    let contents = fs::read_to_string(config.path)?;
+pub fn run(args: Args) -> Result<(), Box<dyn Error>> {
+    let contents = fs::read_to_string(args.path)?;
 
-    let results = search(&config.query, &contents)?;
+    let results = search(&args.query, &contents)?;
 
     write(&results, &mut std::io::stdout())?;
 

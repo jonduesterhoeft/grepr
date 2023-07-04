@@ -66,7 +66,13 @@ mod tests {
 This is:
 A test function
 ";
+        let results = search(query, contents);
 
-        assert_eq!(vec!["A test function"], search(query, contents))
+        let results = match results {
+            Ok(r) => r,
+            Err(e) => panic!("{:?}", e),
+        };
+
+        assert_eq!(vec!["A test function"], results)
     }
 }

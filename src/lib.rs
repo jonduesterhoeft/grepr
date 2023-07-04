@@ -31,29 +31,33 @@ fn search<'a>(args: &Args, contents: &'a str) -> Result<Vec<&'a str>, Box<dyn Er
     let mut results = Vec::new();
 
     if !args.ignore_case {
-        search_case_sensitive(&args.query, &contents, &mut results);
+        search_case_sensitive(&args.query, &contents, &mut results, &args.invert_match);
     } else {
-        search_case_insensitive(&args.query, &contents, &mut results);
+        search_case_insensitive(&args.query, &contents, &mut results, &args.invert_match);
     }
     
     Ok(results)
 }
 
 // Case sensitive search
-fn search_case_sensitive<'a>(query: &str, contents: &'a str, results: &mut Vec<&'a str>) {
+fn search_case_sensitive<'a>(query: &str, contents: &'a str, results: &mut Vec<&'a str>, invert_match: &bool) {
     for line in contents.lines() {
-        if line.contains(query) {
+        if !invert_match && line.contains(query) {
             results.push(line);
+        } else if *invert_match && !line.contains(query) {
+            results.push(line)
         }
     }
 }
 
 // Case INsensitive search
-fn search_case_insensitive<'a>(query: &str, contents: &'a str, results: &mut Vec<&'a str>) {
+fn search_case_insensitive<'a>(query: &str, contents: &'a str, results: &mut Vec<&'a str>, invert_match: &bool) {
     let query = query.to_lowercase();
     for line in contents.lines() {
-        if line.to_lowercase().contains(&query) {
+        if !*invert_match && line.to_lowercase().contains(&query) {
             results.push(line);
+        } else if *invert_match && !line.to_lowercase().contains(&query){
+            results.push(line)
         }
     }
 }
@@ -75,18 +79,40 @@ mod tests {
     #[test]
     fn test_search_case_sensitive() {
         let query = "test";
+        let invert_match = false;
         let mut results = Vec::new();
         let contents = "This is:\nA test function";
-        search_case_sensitive(&query, &contents, &mut results);
+        search_case_sensitive(&query, &contents, &mut results, &invert_match);
         assert_eq!(vec!["A test function"], results)
     }
 
     #[test]
     fn test_search_case_insensitive() {
         let query = "TEST";
+        let invert_match = false;
         let mut results = Vec::new();
         let contents = "This is:\nA test function";
-        search_case_insensitive(&query, &contents, &mut results);
+        search_case_insensitive(&query, &contents, &mut results, &invert_match);
         assert_eq!(vec!["A test function"], results)
+    }
+
+    #[test]
+    fn test_search_case_sensitive_invert() {
+        let query = "test";
+        let invert_match = true;
+        let mut results = Vec::new();
+        let contents = "This is:\nA test function";
+        search_case_sensitive(&query, &contents, &mut results, &invert_match);
+        assert_eq!(vec!["This is:"], results)
+    }
+
+    #[test]
+    fn test_search_case_insensitive_invert() {
+        let query = "TEST";
+        let invert_match = true;
+        let mut results = Vec::new();
+        let contents = "This is:\nA test function";
+        search_case_insensitive(&query, &contents, &mut results, &invert_match);
+        assert_eq!(vec!["This is:"], results)
     }
 }

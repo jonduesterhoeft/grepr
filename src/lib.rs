@@ -1,41 +1,44 @@
-use std::fs::File;
-use std::io::BufReader;
+use std::fs;
 use std::error::Error;
-use clap::Parser;
 
 
-/// A structure that stores the configuration parameters.
-#[derive(Parser)]
+/// A struct that stores the configuration parameters.
 pub struct Config {
-    query: String,
-    path: std::path::PathBuf
+    pub query: String,
+    pub path: String
+}
+
+impl Config {
+    pub fn build(args: &[String]) -> Result<Config, &'static str> {
+        if args.len() < 3 {
+            return Err("not enough arguments");
+        }
+
+        let query = args[1].clone();
+        let path = args[2].clone();
+
+        Ok(Config { query, path })
+    }
 }
 
 /// Executes the search and outputs results.
-pub fn run<File>(config: Config) -> Result<(), Box<dyn Error>> {
-    let mut reader: BufReader<File> = read(&config.path)?;
-    let results = search(&config.query, &mut reader)?;
+pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
+    let contents = fs::read_to_string(config.path)?;
+
+    let results = search(&config.query, &contents)?;
 
     write(&results, &mut std::io::stdout())?;
 
     Ok(())
 }
 
-
-fn read<File>(path: &std::path::PathBuf) -> Result<BufReader<File>, Box<dyn Error>> {
-    let file = File::open(path)?;
-    let mut reader: BufReader<File> = BufReader::new(file);
-
-    Ok(reader)
-}
-
 /// Searchs the file path for the query string.
-fn search<'a, File>(query: &str, reader: &mut BufReader<File>) -> Result<Vec<&'a str>, Box<dyn Error>> {
+fn search<'a>(query: &str, contents: &'a str) -> Result<Vec<&'a str>, Box<dyn Error>> {
     let mut results = Vec::new();
 
-    for line in reader.lines() {
+    for line in contents.lines() {
         if line.contains(query) {
-            results.push(line?);
+            results.push(line);
         }
     }
     

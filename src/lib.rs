@@ -2,6 +2,7 @@ use std::fs;
 use std::error::Error;
 use clap::Parser;
 use regex::bytes::Regex;
+use colored::*;
 
 
 /// A minimal implementation of grep in Rust.
@@ -36,7 +37,7 @@ impl Run for Args {
         let contents = self.read()?;
         let mut search = Search::new(&contents);
         search.find(&self)?;
-        search.write(&mut std::io::stdout())?;
+        search.write(&self, &mut std::io::stdout())?;
         Ok(())
     }
 
@@ -55,7 +56,7 @@ impl<'a> Search<'a> {
 
 trait IsSearch {
     fn find(&mut self, args: &Args) -> Result<(), Box<dyn Error>>;
-    fn write(&self, writer: &mut impl std::io::Write) -> Result<(), Box<dyn Error>>;
+    fn write(&self, args: &Args, writer: &mut impl std::io::Write) -> Result<(), Box<dyn Error>>;
 }
 
 impl<'a> IsSearch for Search<'a> {
@@ -67,7 +68,7 @@ impl<'a> IsSearch for Search<'a> {
             let search_line = prep_string(line, args.ignore_case);
 
             let line_match = args.line && search_line == query;
-            let word_match = args.word && word_regex.split(&search_line).any(|word| word == query);
+            let word_match = !args.line && args.word && word_regex.split(&search_line).any(|word| word == query);
             let partial_match = !args.line && !args.word && search_line.windows(query.len()).any(|window| window == query);
 
             let match_found: bool = line_match || word_match || partial_match;
@@ -81,9 +82,10 @@ impl<'a> IsSearch for Search<'a> {
     }
 
     /// Writes the search results to the command line.
-    fn write(&self, writer: &mut impl std::io::Write) -> Result<(), Box<dyn Error>> {
+    fn write(&self, args: &Args, writer: &mut impl std::io::Write) -> Result<(), Box<dyn Error>> {
         for line in &self.results {
-            writeln!(writer, "{}", line)?;
+            let colored_line = line.replace(&args.query, &args.query.red().bold().to_string());
+            writeln!(writer, "{}", colored_line)?;
         }
         Ok(())
     }

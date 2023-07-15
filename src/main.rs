@@ -1,11 +1,11 @@
 use clap::Parser;
-use mgrep::Args;
+use mgrep::*;
 use std::process;
 
 fn main() {
     let args = Args::parse();
 
-    if let Err(e) = mgrep::run(args) {
+    if let Err(e) = args.run() {
         println!("Application error: {e}");
         process::exit(1);
     }

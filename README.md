@@ -16,7 +16,7 @@ Optional arguments are shown via the --help flag.
 $ grepr --help
 A simple to use command line search tool, à la grep.
 
-Usage: mgrep [OPTIONS] <QUERY> <PATH>
+Usage: grepr [OPTIONS] <QUERY> <PATH>
 
 Arguments:
   <QUERY>  Search query

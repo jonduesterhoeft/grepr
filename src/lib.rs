@@ -10,9 +10,6 @@
 //! A simple search example.
     #![doc = include_str!("../examples/simple.md")]
 //!
-//! A simple search example.
-#![doc = include_str!("../examples/simple.md")]
-//!
 //! Search for an exact word. In this case any non-alphanumeric characters
 //! are ignored.
 #![doc = include_str!("../examples/exact_word.md")]

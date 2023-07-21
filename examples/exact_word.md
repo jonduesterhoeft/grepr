@@ -1,5 +1,5 @@
 ```console
-$ grepr in test/pale_blue_dot.txt -w
+$ grepr in tests/pale_blue_dot.txt -w
 
 test/pale_blue_dot.txt
 6: civilization, every king and peasant, every young couple in love, 

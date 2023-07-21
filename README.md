@@ -1,4 +1,4 @@
-# mgrep
+# grepr
 
 [![Rust](https://github.com/jonduesterhoeft/mgrep/actions/workflows/rust.yml/badge.svg)](https://github.com/jonduesterhoeft/mgrep/actions/workflows/rust.yml)
 
@@ -34,7 +34,7 @@ Options:
 # Examples #
 A simple search example.
 ```console
-$ grepr sunbeam test/pale_blue_dot.txt
+$ grepr sunbeam tests/pale_blue_dot.txt
 
 test/pale_blue_dot.txt
 11: on a mote of dust suspended in a sunbeam.
@@ -43,7 +43,7 @@ test/pale_blue_dot.txt
 Search for an exact word. In this case any non-alphanumeric characters
 are ignored.
 ```console
-$ grepr "in" test/pale_blue_dot.txt -w
+$ grepr "in" tests/pale_blue_dot.txt -w
 
 test/pale_blue_dot.txt
 6: civilization, every king and peasant, every young couple in love, 
@@ -54,7 +54,7 @@ test/pale_blue_dot.txt
 
 Inverting the search results. All lines without a match are returned.
 ```console
-$ grepr a test/pale_blue_dot.txt -v
+$ grepr a tests/pale_blue_dot.txt -v
 
 test/pale_blue_dot.txt
 1: On it everyone you love, everyone you know, everyone you ever 

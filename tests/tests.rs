@@ -1,4 +1,5 @@
-use grepr;
+use grepr::*;
+use std::path::PathBuf;
 
 #[test]
 fn test_search_line_case_noinvert_good() {
@@ -10,19 +11,13 @@ fn test_search_line_case_noinvert_good() {
     let word = false;
     let line = true;
 
-    let args = CommandArgs { 
-        query, 
-        path,
-        ignore_case,
-        invert_match,
-        word,
-        line 
-    };
+    let args = CommandArgs::new(query, path, ignore_case, invert_match, word, line);
 
     let mut search = Search::new(&contents);
     let _ = search.find(&args);
+    let result = search.get_results();
 
-    assert_eq!(search.results[0].1, "this is a test.")
+    assert_eq!(result[0].1, "this is a test.")
 }
 
 
@@ -37,19 +32,13 @@ fn test_search_line_case_noinvert_bad() {
     let word = false;
     let line = true;
 
-    let args = CommandArgs { 
-        query, 
-        path,
-        ignore_case,
-        invert_match,
-        word,
-        line 
-    };
+    let args = CommandArgs::new(query, path, ignore_case, invert_match, word, line);
 
     let mut search = Search::new(&contents);
     let _ = search.find(&args);
+    let result = search.get_results();
 
-    assert_eq!(search.results.len(), 0)
+    assert_eq!(result.len(), 0)
 }
 
 #[test]
@@ -62,19 +51,13 @@ fn test_search_line_nocase_noinvert_good() {
     let word = false;
     let line = true;
 
-    let args = CommandArgs { 
-        query, 
-        path,
-        ignore_case,
-        invert_match,
-        word,
-        line 
-    };
+    let args = CommandArgs::new(query, path, ignore_case, invert_match, word, line);
 
     let mut search = Search::new(&contents);
     let _ = search.find(&args);
+    let result = search.get_results();
 
-    assert_eq!(search.results[0].1, "this is a test.")
+    assert_eq!(result[0].1, "this is a test.")
 }
 
 
@@ -89,19 +72,13 @@ fn test_search_line_nocase_noinvert_bad() {
     let word = false;
     let line = true;
 
-    let args = CommandArgs { 
-        query, 
-        path,
-        ignore_case,
-        invert_match,
-        word,
-        line 
-    };
+    let args = CommandArgs::new(query, path, ignore_case, invert_match, word, line);
 
     let mut search = Search::new(&contents);
     let _ = search.find(&args);
+    let result = search.get_results();
 
-    assert_eq!(search.results.len(), 0)
+    assert_eq!(result.len(), 0)
 }
 
 #[test]
@@ -114,19 +91,13 @@ fn test_search_line_nocase_invert_good() {
     let word = false;
     let line = true;
 
-    let args = CommandArgs { 
-        query, 
-        path,
-        ignore_case,
-        invert_match,
-        word,
-        line 
-    };
+    let args = CommandArgs::new(query, path, ignore_case, invert_match, word, line);
 
     let mut search = Search::new(&contents);
     let _ = search.find(&args);
+    let result = search.get_results();
 
-    assert_eq!(search.results[0].1, "this is another test!")
+    assert_eq!(result[0].1, "this is another test!")
 }
 
 
@@ -141,19 +112,13 @@ fn test_search_line_nocase_invert_bad() {
     let word = false;
     let line = true;
 
-    let args = CommandArgs { 
-        query, 
-        path,
-        ignore_case,
-        invert_match,
-        word,
-        line 
-    };
+    let args = CommandArgs::new(query, path, ignore_case, invert_match, word, line);
 
     let mut search = Search::new(&contents);
     let _ = search.find(&args);
+    let result = search.get_results();
 
-    assert_eq!(search.results.len(), 2)
+    assert_eq!(result.len(), 2)
 }
 
 #[test]
@@ -166,19 +131,13 @@ fn test_search_word_case_noinvert_good() {
     let word = true;
     let line = false;
 
-    let args = CommandArgs { 
-        query, 
-        path,
-        ignore_case,
-        invert_match,
-        word,
-        line 
-    };
+    let args = CommandArgs::new(query, path, ignore_case, invert_match, word, line);
 
     let mut search = Search::new(&contents);
     let _ = search.find(&args);
+    let result = search.get_results();
 
-    assert_eq!(search.results[0].1, "this is another test!")
+    assert_eq!(result[0].1, "this is another test!")
 }
 
 
@@ -193,19 +152,13 @@ fn test_search_word_case_noinvert_bad() {
     let word = true;
     let line = false;
 
-    let args = CommandArgs { 
-        query, 
-        path,
-        ignore_case,
-        invert_match,
-        word,
-        line 
-    };
+    let args = CommandArgs::new(query, path, ignore_case, invert_match, word, line);
 
     let mut search = Search::new(&contents);
     let _ = search.find(&args);
+    let result = search.get_results();
 
-    assert_eq!(search.results.len(), 0)
+    assert_eq!(result.len(), 0)
 }
 
 #[test]
@@ -218,19 +171,13 @@ fn test_search_word_nocase_noinvert_good() {
     let word = true;
     let line = false;
 
-    let args = CommandArgs { 
-        query, 
-        path,
-        ignore_case,
-        invert_match,
-        word,
-        line 
-    };
+    let args = CommandArgs::new(query, path, ignore_case, invert_match, word, line);
 
     let mut search = Search::new(&contents);
     let _ = search.find(&args);
+    let result = search.get_results();
 
-    assert_eq!(search.results[0].1, "this is another test!")
+    assert_eq!(result[0].1, "this is another test!")
 }
 
 
@@ -245,19 +192,13 @@ fn test_search_word_nocase_noinvert_bad() {
     let word = true;
     let line = false;
 
-    let args = CommandArgs { 
-        query, 
-        path,
-        ignore_case,
-        invert_match,
-        word,
-        line 
-    };
+    let args = CommandArgs::new(query, path, ignore_case, invert_match, word, line);
 
     let mut search = Search::new(&contents);
     let _ = search.find(&args);
+    let result = search.get_results();
 
-    assert_eq!(search.results.len(), 0)
+    assert_eq!(result.len(), 0)
 }
 
 #[test]
@@ -270,19 +211,13 @@ fn test_search_word_nocase_invert_good() {
     let word = true;
     let line = false;
 
-    let args = CommandArgs { 
-        query, 
-        path,
-        ignore_case,
-        invert_match,
-        word,
-        line 
-    };
+    let args = CommandArgs::new(query, path, ignore_case, invert_match, word, line);
 
     let mut search = Search::new(&contents);
     let _ = search.find(&args);
+    let result = search.get_results();
 
-    assert_eq!(search.results[0].1, "this is a test.")
+    assert_eq!(result[0].1, "this is a test.")
 }
 
 
@@ -297,19 +232,13 @@ fn test_search_word_nocase_invert_bad() {
     let word = true;
     let line = false;
 
-    let args = CommandArgs { 
-        query, 
-        path,
-        ignore_case,
-        invert_match,
-        word,
-        line 
-    };
+    let args = CommandArgs::new(query, path, ignore_case, invert_match, word, line);
 
     let mut search = Search::new(&contents);
     let _ = search.find(&args);
+    let result = search.get_results();
 
-    assert_eq!(search.results.len(), 2)
+    assert_eq!(result.len(), 2)
 }
 
 
@@ -324,19 +253,13 @@ fn test_search_partial_case_noinvert_good() {
     let word = false;
     let line = false;
 
-    let args = CommandArgs { 
-        query, 
-        path,
-        ignore_case,
-        invert_match,
-        word,
-        line 
-    };
+    let args = CommandArgs::new(query, path, ignore_case, invert_match, word, line);
 
     let mut search = Search::new(&contents);
     let _ = search.find(&args);
+    let result = search.get_results();
 
-    assert_eq!(search.results[0].1, "this is another test!")
+    assert_eq!(result[0].1, "this is another test!")
 }
 
 
@@ -351,19 +274,13 @@ fn test_search_partial_case_noinvert_bad() {
     let word = false;
     let line = false;
 
-    let args = CommandArgs { 
-        query, 
-        path,
-        ignore_case,
-        invert_match,
-        word,
-        line 
-    };
+    let args = CommandArgs::new(query, path, ignore_case, invert_match, word, line);
 
     let mut search = Search::new(&contents);
     let _ = search.find(&args);
+    let result = search.get_results();
 
-    assert_eq!(search.results.len(), 0)
+    assert_eq!(result.len(), 0)
 }
 
 #[test]
@@ -376,19 +293,13 @@ fn test_search_partial_nocase_noinvert_good() {
     let word = false;
     let line = false;
 
-    let args = CommandArgs { 
-        query, 
-        path,
-        ignore_case,
-        invert_match,
-        word,
-        line 
-    };
+    let args = CommandArgs::new(query, path, ignore_case, invert_match, word, line);
 
     let mut search = Search::new(&contents);
     let _ = search.find(&args);
+    let result = search.get_results();
 
-    assert_eq!(search.results[0].1, "this is another test!")
+    assert_eq!(result[0].1, "this is another test!")
 }
 
 
@@ -403,19 +314,13 @@ fn test_search_partial_nocase_noinvert_bad() {
     let word = false;
     let line = false;
 
-    let args = CommandArgs { 
-        query, 
-        path,
-        ignore_case,
-        invert_match,
-        word,
-        line 
-    };
+    let args = CommandArgs::new(query, path, ignore_case, invert_match, word, line);
 
     let mut search = Search::new(&contents);
     let _ = search.find(&args);
+    let result = search.get_results();
 
-    assert_eq!(search.results.len(), 0)
+    assert_eq!(result.len(), 0)
 }
 
 #[test]
@@ -428,19 +333,13 @@ fn test_search_partial_nocase_invert_good() {
     let word = false;
     let line = false;
 
-    let args = CommandArgs { 
-        query, 
-        path,
-        ignore_case,
-        invert_match,
-        word,
-        line 
-    };
+    let args = CommandArgs::new(query, path, ignore_case, invert_match, word, line);
 
     let mut search = Search::new(&contents);
     let _ = search.find(&args);
+    let result = search.get_results();
 
-    assert_eq!(search.results[0].1, "this is a test.")
+    assert_eq!(result[0].1, "this is a test.")
 }
 
 
@@ -455,18 +354,11 @@ fn test_search_partial_nocase_invert_bad() {
     let word = false;
     let line = false;
 
-    let args = CommandArgs { 
-        query, 
-        path,
-        ignore_case,
-        invert_match,
-        word,
-        line 
-    };
-
+    let args = CommandArgs::new(query, path, ignore_case, invert_match, word, line);
     let mut search = Search::new(&contents);
     let _ = search.find(&args);
+    let result = search.get_results();
 
-    assert_eq!(search.results.len(), 2)
+    assert_eq!(result.len(), 2)
 }
 

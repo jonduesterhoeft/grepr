@@ -1,5 +1,5 @@
 ```console
-$ mgrep --help
+$ grepr --help
 A simple to use command line search tool, à la grep.
 
 Usage: mgrep [OPTIONS] <QUERY> <PATH>

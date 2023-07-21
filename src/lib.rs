@@ -1,7 +1,7 @@
 //! A minimal implementation of grep in rust.
 //! 
 //! # Overview #
-//! **mgrep** is a simple command line search tool. A search string and 
+//! **grepr** is a simple command line search tool. A search string and 
 //! file path are input as arguments, along with several optionals 
 //! to fine tune the search. The program iterates through each line in the
 //! specified file and will return any lines matching the search criteria.
@@ -121,7 +121,7 @@ impl<'a> Search<'a> {
     /// 
     /// # Example
     /// ```
-    /// # use crate::mgrep::Search;
+    /// # use crate::grepr::Search;
     /// let some_text = "This is a test.\n With two lines.".to_string();
     /// 
     /// let new_search = Search::new(&some_text);

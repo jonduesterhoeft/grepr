@@ -1,5 +1,5 @@
 use clap::Parser;
-use mgrep::*;
+use grepr::*;
 use std::process;
 
 

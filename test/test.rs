@@ -1,4 +1,4 @@
-use mgrep;
+use grepr;
 
 #[test]
 fn test_search_line_case_noinvert_good() {

@@ -5,7 +5,7 @@
 A minimal version of grep implemented in Rust.
 
 # Overview #
-**mgrep** is a simple command line search tool. A search string and 
+**grepr** is a simple command line search tool. A search string and 
 file path are input as arguments, along with several optionals 
 to fine tune the search. The program iterates through each line in the
 specified file and will return any lines matching the search criteria.
@@ -13,7 +13,7 @@ specified file and will return any lines matching the search criteria.
 # Options #
 Optional arguments are shown via the --help flag.
 ```console
-$ mgrep --help
+$ grepr --help
 A simple to use command line search tool, à la grep.
 
 Usage: mgrep [OPTIONS] <QUERY> <PATH>
@@ -34,7 +34,7 @@ Options:
 # Examples #
 A simple search example.
 ```console
-$ mgrep sunbeam test/pale_blue_dot.txt
+$ grepr sunbeam test/pale_blue_dot.txt
 
 test/pale_blue_dot.txt
 11: on a mote of dust suspended in a sunbeam.
@@ -43,7 +43,7 @@ test/pale_blue_dot.txt
 Search for an exact word. In this case any non-alphanumeric characters
 are ignored.
 ```console
-$ mgrep "in" test/pale_blue_dot.txt -w
+$ grepr "in" test/pale_blue_dot.txt -w
 
 test/pale_blue_dot.txt
 6: civilization, every king and peasant, every young couple in love, 
@@ -54,7 +54,7 @@ test/pale_blue_dot.txt
 
 Inverting the search results. All lines without a match are returned.
 ```console
-$ mgrep a test/pale_blue_dot.txt -v
+$ grepr a test/pale_blue_dot.txt -v
 
 test/pale_blue_dot.txt
 1: On it everyone you love, everyone you know, everyone you ever 

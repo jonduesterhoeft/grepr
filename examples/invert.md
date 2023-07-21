@@ -1,5 +1,5 @@
 ```console
-$ mgrep a test/pale_blue_dot.txt -v
+$ grepr a test/pale_blue_dot.txt -v
 
 test/pale_blue_dot.txt
 1: On it everyone you love, everyone you know, everyone you ever 

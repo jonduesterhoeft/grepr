@@ -37,11 +37,7 @@ use colored::*;
 #[doc = include_str!("../examples/help.md")]
 ///
 #[derive(Parser)]
-#[command(
-    version, 
-    about = "A simple to use command line search tool, à la grep.", 
-    long_about = None
-)]
+#[command(version, about = "A simple to use command line search tool, à la grep.", long_about = None)]
 pub struct CommandArgs {
     /// Search query
     query: String,

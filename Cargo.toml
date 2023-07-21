@@ -8,7 +8,7 @@ readme = "README.md"
 repository = "https://github.com/jonduesterhoeft/grepr"
 license = "MIT"
 license_file = "LICENSE"
-keywords = ["cli", "grep", "search", "command line"]
+keywords = ["cli", "grep", "search", "utility"]
 exclude = ["/.github"]
 
 [dependencies]

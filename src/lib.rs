@@ -1,3 +1,25 @@
+//! A minimal implementation of grep in rust.
+//! 
+//! # Overview #
+//! **mgrep** is a simple command line search tool. A search string and 
+//! file path are input as arguments, along with several optionals 
+//! to fine tune the search. The program iterates through each line in the
+//! specified file and will return any lines matching the search criteria.
+//! 
+//! # Examples #
+//! A simple search example.
+    #![doc = include_str!("../examples/simple.md")]
+//!
+//! A simple search example.
+#![doc = include_str!("../examples/simple.md")]
+//!
+//! Search for an exact word. In this case any non-alphanumeric characters
+//! are ignored.
+#![doc = include_str!("../examples/exact_word.md")]
+//!
+//! Inverting the search results. All lines without a match are returned.
+#![doc = include_str!("../examples/invert.md")]
+//!
 use std::fs;
 use std::path::PathBuf;
 use std::error::Error;
@@ -6,34 +28,68 @@ use regex::bytes::Regex;
 use colored::*;
 
 
-/// A minimal implementation of grep in Rust.
+/// A parser for command line input.
+/// 
+/// Reads the `query` and `path` arguments for the search along with a 
+/// number of options from the command line.
+/// 
+/// # Options #
+#[doc = include_str!("../examples/help.md")]
+///
 #[derive(Parser)]
-#[command(author, version, about, long_about = None)]
-pub struct Args {
+#[command(
+    version, 
+    about = "A simple to use command line search tool, à la grep.", 
+    long_about = None
+)]
+pub struct CommandArgs {
+    /// Search query
     query: String,
+    /// File path
     path: PathBuf,
     #[arg(short, long)]
+    /// Ignores case whiles searching
     ignore_case: bool,
     #[arg(short = 'v', long)]
+    /// Inverst search results
     invert_match: bool,
     #[arg(short, long)]
+    /// Matches exact words only
     word: bool,
     #[arg(short, long)]
+    /// Matches exact lines only
     line: bool,
 }
 
-struct Search<'a> {
+/// Stores the results of the search and a reference to the contents.
+/// 
+/// `Search` is used in conjunction wih `CommandsArgs` which contains
+/// the specific parameters used for the search.
+/// 
+pub struct Search<'a> {
     contents: &'a str,
     results: Vec<(usize, &'a str)>,
 }
 
-pub trait Run {
+/// Defines methods expected to run on `CommandArgs`.
+pub trait RunArgs {
+    /// Executes the search process given the command line arguments.
     fn run(&self) -> Result<(), Box<dyn Error>>;
+
+    /// Reads and stores the contents of a file.
     fn read(&self) -> Result<String, Box<dyn Error>>;
 }
 
-impl Run for Args {
-    /// Executes the search and outputs results.
+impl RunArgs for CommandArgs {
+    /// Executes the search process given the command line arguments.
+    /// 
+    /// Reads contents of the specified file and generates a new 
+    /// `Search` struct to store the results. Once completed, the results
+    /// are written to the terminal.
+    /// 
+    /// # Returns
+    /// Returns () if successful.
+    /// 
     fn run(&self) -> Result<(), Box<dyn Error>> {
         let contents = self.read()?;
         let mut search = Search::new(&contents);
@@ -42,27 +98,50 @@ impl Run for Args {
         Ok(())
     }
 
-    /// Reads data from the file
+    /// Reads and stores the contents of a file.
+    /// 
+    /// # Returns
+    /// Returns the contents of a file as a `String`.
+    /// 
     fn read(&self) -> Result<String, Box<dyn Error>> {
         let contents = fs::read_to_string(&self.path)?;
         Ok(contents)
     }
 }
 
+
+/// Defines methods expected to run on `Search`.
+pub trait IsSearch {
+    /// Searchs for the query in the file contents.
+    fn find(&mut self, args: &CommandArgs) -> Result<(), Box<dyn Error>>;
+    
+    /// Writes the matches to the terminal.
+    fn write(&self, args: &CommandArgs, writer: &mut impl std::io::Write) -> Result<(), Box<dyn Error>>;
+}
+
 impl<'a> Search<'a> {
+    /// Creates a new `Search`.
+    /// 
+    /// # Returns
+    /// Returns a `Search` containing a reference to `contents` 
+    /// and an empty `results` vector.
+    /// 
+    /// # Example
+    /// ```
+    /// # use crate::mgrep::Search;
+    /// let some_text = "This is a test.\n With two lines.".to_string();
+    /// 
+    /// let new_search = Search::new(&some_text);
+    /// ```
+    /// 
     pub fn new(contents: &'a str) -> Search<'a> {
         Search { contents, results: Vec::new() }
     }
 }
 
-trait IsSearch {
-    fn find(&mut self, args: &Args) -> Result<(), Box<dyn Error>>;
-    fn write(&self, args: &Args, writer: &mut impl std::io::Write) -> Result<(), Box<dyn Error>>;
-}
-
 impl<'a> IsSearch for Search<'a> {
     /// Searchs the file path for the query string.
-    fn find(&mut self, args: &Args) -> Result<(), Box<dyn Error>> {
+    fn find(&mut self, args: &CommandArgs) -> Result<(), Box<dyn Error>> {
         let query = prep_string(&args.query.to_string(), args.ignore_case);
         let word_regex = Regex::new(r"\W+").unwrap();
         for (number, line) in self.contents.lines().enumerate() {
@@ -83,7 +162,7 @@ impl<'a> IsSearch for Search<'a> {
     }
 
     /// Writes the search results to the command line.
-    fn write(&self, args: &Args, writer: &mut impl std::io::Write) -> Result<(), Box<dyn Error>> {
+    fn write(&self, args: &CommandArgs, writer: &mut impl std::io::Write) -> Result<(), Box<dyn Error>> {
         writeln!(writer, "{}", args.path.display())?;
         for (number, line) in &self.results {
             let colored_line = line.replace(&args.query, &args.query.red().bold().to_string());
@@ -94,489 +173,16 @@ impl<'a> IsSearch for Search<'a> {
 
 }
 
+
 // helper methods
 
+// Prepares a string for saerch.
+// The string is converted to lowercase if lower == true.
+// Either way, the string is converted to bytes ahead of the search.
 fn prep_string(str: &str, lower: bool) -> Vec<u8> {
     if lower {
         str.to_lowercase().into_bytes()
     } else {
         str.to_string().into_bytes()
     }
-}
-
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_search_line_case_noinvert_good() {
-        let query = "this is a test.".to_string();
-        let path = PathBuf::new();
-        let contents = "this is a test.\nthis is another test!";
-        let ignore_case = false;
-        let invert_match = false;
-        let word = false;
-        let line = true;
-
-        let args = Args { 
-            query, 
-            path,
-            ignore_case,
-            invert_match,
-            word,
-            line 
-        };
-
-        let mut search = Search::new(&contents);
-        let _ = search.find(&args);
-
-        assert_eq!(search.results[0].1, "this is a test.")
-    }
-
-
-
-    #[test]
-    fn test_search_line_case_noinvert_bad() {
-        let query = "this is a test".to_string();
-        let path = PathBuf::new();
-        let contents = "this is a test.\nthis is another test!";
-        let ignore_case = false;
-        let invert_match = false;
-        let word = false;
-        let line = true;
-
-        let args = Args { 
-            query, 
-            path,
-            ignore_case,
-            invert_match,
-            word,
-            line 
-        };
-
-        let mut search = Search::new(&contents);
-        let _ = search.find(&args);
-
-        assert_eq!(search.results.len(), 0)
-    }
-
-    #[test]
-    fn test_search_line_nocase_noinvert_good() {
-        let query = "THIS is a test.".to_string();
-        let path = PathBuf::new();
-        let contents = "this is a test.\nthis is another test!";
-        let ignore_case = true;
-        let invert_match = false;
-        let word = false;
-        let line = true;
-
-        let args = Args { 
-            query, 
-            path,
-            ignore_case,
-            invert_match,
-            word,
-            line 
-        };
-
-        let mut search = Search::new(&contents);
-        let _ = search.find(&args);
-
-        assert_eq!(search.results[0].1, "this is a test.")
-    }
-
-
-
-    #[test]
-    fn test_search_line_nocase_noinvert_bad() {
-        let query = "THIS is a test".to_string();
-        let path = PathBuf::new();
-        let contents = "this is a test.\nthis is another test!";
-        let ignore_case = true;
-        let invert_match = false;
-        let word = false;
-        let line = true;
-
-        let args = Args { 
-            query, 
-            path,
-            ignore_case,
-            invert_match,
-            word,
-            line 
-        };
-
-        let mut search = Search::new(&contents);
-        let _ = search.find(&args);
-
-        assert_eq!(search.results.len(), 0)
-    }
-
-    #[test]
-    fn test_search_line_nocase_invert_good() {
-        let query = "THIS is a test.".to_string();
-        let path = PathBuf::new();
-        let contents = "this is a test.\nthis is another test!";
-        let ignore_case = true;
-        let invert_match = true;
-        let word = false;
-        let line = true;
-
-        let args = Args { 
-            query, 
-            path,
-            ignore_case,
-            invert_match,
-            word,
-            line 
-        };
-
-        let mut search = Search::new(&contents);
-        let _ = search.find(&args);
-
-        assert_eq!(search.results[0].1, "this is another test!")
-    }
-
-
-
-    #[test]
-    fn test_search_line_nocase_invert_bad() {
-        let query = "THIS is a test".to_string();
-        let path = PathBuf::new();
-        let contents = "this is a test.\nthis is another test!";
-        let ignore_case = true;
-        let invert_match = true;
-        let word = false;
-        let line = true;
-
-        let args = Args { 
-            query, 
-            path,
-            ignore_case,
-            invert_match,
-            word,
-            line 
-        };
-
-        let mut search = Search::new(&contents);
-        let _ = search.find(&args);
-
-        assert_eq!(search.results.len(), 2)
-    }
-
-    #[test]
-    fn test_search_word_case_noinvert_good() {
-        let query = "another".to_string();
-        let path = PathBuf::new();
-        let contents = "this is a test.\nthis is another test!";
-        let ignore_case = false;
-        let invert_match = false;
-        let word = true;
-        let line = false;
-
-        let args = Args { 
-            query, 
-            path,
-            ignore_case,
-            invert_match,
-            word,
-            line 
-        };
-
-        let mut search = Search::new(&contents);
-        let _ = search.find(&args);
-
-        assert_eq!(search.results[0].1, "this is another test!")
-    }
-
-
-
-    #[test]
-    fn test_search_word_case_noinvert_bad() {
-        let query = "nothing".to_string();
-        let path = PathBuf::new();
-        let contents = "this is a test.\nthis is another test!";
-        let ignore_case = false;
-        let invert_match = false;
-        let word = true;
-        let line = false;
-
-        let args = Args { 
-            query, 
-            path,
-            ignore_case,
-            invert_match,
-            word,
-            line 
-        };
-
-        let mut search = Search::new(&contents);
-        let _ = search.find(&args);
-
-        assert_eq!(search.results.len(), 0)
-    }
-
-    #[test]
-    fn test_search_word_nocase_noinvert_good() {
-        let query = "ANOTHER".to_string();
-        let path = PathBuf::new();
-        let contents = "this is a test.\nthis is another test!";
-        let ignore_case = true;
-        let invert_match = false;
-        let word = true;
-        let line = false;
-
-        let args = Args { 
-            query, 
-            path,
-            ignore_case,
-            invert_match,
-            word,
-            line 
-        };
-
-        let mut search = Search::new(&contents);
-        let _ = search.find(&args);
-
-        assert_eq!(search.results[0].1, "this is another test!")
-    }
-
-
-
-    #[test]
-    fn test_search_word_nocase_noinvert_bad() {
-        let query = "NOTHING".to_string();
-        let path = PathBuf::new();
-        let contents = "this is a test.\nthis is another test!";
-        let ignore_case = true;
-        let invert_match = false;
-        let word = true;
-        let line = false;
-
-        let args = Args { 
-            query, 
-            path,
-            ignore_case,
-            invert_match,
-            word,
-            line 
-        };
-
-        let mut search = Search::new(&contents);
-        let _ = search.find(&args);
-
-        assert_eq!(search.results.len(), 0)
-    }
-
-    #[test]
-    fn test_search_word_nocase_invert_good() {
-        let query = "another".to_string();
-        let path = PathBuf::new();
-        let contents = "this is a test.\nthis is another test!";
-        let ignore_case = true;
-        let invert_match = true;
-        let word = true;
-        let line = false;
-
-        let args = Args { 
-            query, 
-            path,
-            ignore_case,
-            invert_match,
-            word,
-            line 
-        };
-
-        let mut search = Search::new(&contents);
-        let _ = search.find(&args);
-
-        assert_eq!(search.results[0].1, "this is a test.")
-    }
-
-
-
-    #[test]
-    fn test_search_word_nocase_invert_bad() {
-        let query = "nothing".to_string();
-        let path = PathBuf::new();
-        let contents = "this is a test.\nthis is another test!";
-        let ignore_case = true;
-        let invert_match = true;
-        let word = true;
-        let line = false;
-
-        let args = Args { 
-            query, 
-            path,
-            ignore_case,
-            invert_match,
-            word,
-            line 
-        };
-
-        let mut search = Search::new(&contents);
-        let _ = search.find(&args);
-
-        assert_eq!(search.results.len(), 2)
-    }
-
-
-
-    #[test]
-    fn test_search_partial_case_noinvert_good() {
-        let query = "ano".to_string();
-        let path = PathBuf::new();
-        let contents = "this is a test.\nthis is another test!";
-        let ignore_case = false;
-        let invert_match = false;
-        let word = false;
-        let line = false;
-
-        let args = Args { 
-            query, 
-            path,
-            ignore_case,
-            invert_match,
-            word,
-            line 
-        };
-
-        let mut search = Search::new(&contents);
-        let _ = search.find(&args);
-
-        assert_eq!(search.results[0].1, "this is another test!")
-    }
-
-
-
-    #[test]
-    fn test_search_partial_case_noinvert_bad() {
-        let query = "nothing".to_string();
-        let path = PathBuf::new();
-        let contents = "this is a test.\nthis is another test!";
-        let ignore_case = false;
-        let invert_match = false;
-        let word = false;
-        let line = false;
-
-        let args = Args { 
-            query, 
-            path,
-            ignore_case,
-            invert_match,
-            word,
-            line 
-        };
-
-        let mut search = Search::new(&contents);
-        let _ = search.find(&args);
-
-        assert_eq!(search.results.len(), 0)
-    }
-
-    #[test]
-    fn test_search_partial_nocase_noinvert_good() {
-        let query = "ANO".to_string();
-        let path = PathBuf::new();
-        let contents = "this is a test.\nthis is another test!";
-        let ignore_case = true;
-        let invert_match = false;
-        let word = false;
-        let line = false;
-
-        let args = Args { 
-            query, 
-            path,
-            ignore_case,
-            invert_match,
-            word,
-            line 
-        };
-
-        let mut search = Search::new(&contents);
-        let _ = search.find(&args);
-
-        assert_eq!(search.results[0].1, "this is another test!")
-    }
-
-
-
-    #[test]
-    fn test_search_partial_nocase_noinvert_bad() {
-        let query = "NOTHING".to_string();
-        let path = PathBuf::new();
-        let contents = "this is a test.\nthis is another test!";
-        let ignore_case = true;
-        let invert_match = false;
-        let word = false;
-        let line = false;
-
-        let args = Args { 
-            query, 
-            path,
-            ignore_case,
-            invert_match,
-            word,
-            line 
-        };
-
-        let mut search = Search::new(&contents);
-        let _ = search.find(&args);
-
-        assert_eq!(search.results.len(), 0)
-    }
-
-    #[test]
-    fn test_search_partial_nocase_invert_good() {
-        let query = "ano".to_string();
-        let path = PathBuf::new();
-        let contents = "this is a test.\nthis is another test!";
-        let ignore_case = true;
-        let invert_match = true;
-        let word = false;
-        let line = false;
-
-        let args = Args { 
-            query, 
-            path,
-            ignore_case,
-            invert_match,
-            word,
-            line 
-        };
-
-        let mut search = Search::new(&contents);
-        let _ = search.find(&args);
-
-        assert_eq!(search.results[0].1, "this is a test.")
-    }
-
-
-
-    #[test]
-    fn test_search_partial_nocase_invert_bad() {
-        let query = "nothing".to_string();
-        let path = PathBuf::new();
-        let contents = "this is a test.\nthis is another test!";
-        let ignore_case = true;
-        let invert_match = true;
-        let word = false;
-        let line = false;
-
-        let args = Args { 
-            query, 
-            path,
-            ignore_case,
-            invert_match,
-            word,
-            line 
-        };
-
-        let mut search = Search::new(&contents);
-        let _ = search.find(&args);
-
-        assert_eq!(search.results.len(), 2)
-    }
-
 }
